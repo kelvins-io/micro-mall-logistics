@@ -1,0 +1,308 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "proto/micro_mall_logistics_proto/logistics_business/logistics_business.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/logistics/create": {
+      "post": {
+        "summary": "创建物流记录",
+        "operationId": "LogisticsBusinessService_CreateRecord",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/logistics_businessCreateRecordResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/logistics_businessCreateRecordRequest"
+            }
+          }
+        ],
+        "tags": [
+          "LogisticsBusinessService"
+        ]
+      }
+    },
+    "/v1/logistics/query": {
+      "get": {
+        "summary": "查询物流记录",
+        "operationId": "LogisticsBusinessService_QueryRecord",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/logistics_businessQueryRecordResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "logistics_code",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "LogisticsBusinessService"
+        ]
+      }
+    },
+    "/v1/logistics/update": {
+      "put": {
+        "summary": "更新物流状态",
+        "operationId": "LogisticsBusinessService_UpdateState",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/logistics_businessUpdateStateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/logistics_businessUpdateStateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "LogisticsBusinessService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "logistics_businessCommonResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "$ref": "#/definitions/logistics_businessRetCode"
+        },
+        "msg": {
+          "type": "string"
+        }
+      }
+    },
+    "logistics_businessCreateRecordRequest": {
+      "type": "object",
+      "properties": {
+        "out_trade_no": {
+          "type": "string"
+        },
+        "courier": {
+          "type": "string"
+        },
+        "courier_type": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "customer": {
+          "$ref": "#/definitions/logistics_businessCustomerInfo"
+        },
+        "goods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/logistics_businessGoodsInfo"
+          }
+        }
+      }
+    },
+    "logistics_businessCreateRecordResponse": {
+      "type": "object",
+      "properties": {
+        "common": {
+          "$ref": "#/definitions/logistics_businessCommonResponse"
+        },
+        "logistics_code": {
+          "type": "string"
+        }
+      }
+    },
+    "logistics_businessCustomerInfo": {
+      "type": "object",
+      "properties": {
+        "send_user": {
+          "type": "string"
+        },
+        "send_addr": {
+          "type": "string"
+        },
+        "send_phone": {
+          "type": "string"
+        },
+        "send_time": {
+          "type": "string"
+        },
+        "receive_user": {
+          "type": "string"
+        },
+        "receive_addr": {
+          "type": "string"
+        },
+        "receive_phone": {
+          "type": "string"
+        }
+      }
+    },
+    "logistics_businessGoodsInfo": {
+      "type": "object",
+      "properties": {
+        "order_code": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "logistics_businessLogisticsState": {
+      "type": "object",
+      "properties": {
+        "location": {
+          "type": "string"
+        },
+        "op_user": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "is_over": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    "logistics_businessQueryRecordResponse": {
+      "type": "object",
+      "properties": {
+        "common": {
+          "$ref": "#/definitions/logistics_businessCommonResponse"
+        },
+        "state_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/logistics_businessLogisticsState"
+          }
+        }
+      }
+    },
+    "logistics_businessRetCode": {
+      "type": "string",
+      "enum": [
+        "SUCCESS",
+        "ERROR",
+        "USER_NOT_EXIST",
+        "USER_EXIST",
+        "MERCHANT_NOT_EXIST",
+        "MERCHANT_EXIST",
+        "SHOP_NOT_EXIST",
+        "SHOP_EXIST",
+        "SKU_NOT_EXIST",
+        "SKU_EXIST",
+        "SKU_AMOUNT_NOT_ENOUGH",
+        "USER_BALANCE_NOT_ENOUGH",
+        "MERCHANT_BALANCE_NOT_ENOUGH",
+        "ACCOUNT_LOCK",
+        "MERCHANT_ACCOUNT_NOT_EXIST",
+        "MERCHANT_ACCOUNT_STATE_LOCK",
+        "USER_ACCOUNT_NOT_EXIST",
+        "USER_ACCOUNT_STATE_LOCK",
+        "DECIMAL_PARSE_ERR",
+        "TRANSACTION_FAILED",
+        "ACCOUNT_EXIST"
+      ],
+      "default": "SUCCESS"
+    },
+    "logistics_businessUpdateStateRequest": {
+      "type": "object",
+      "properties": {
+        "logistics_code": {
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/definitions/logistics_businessLogisticsState"
+        }
+      }
+    },
+    "logistics_businessUpdateStateResponse": {
+      "type": "object",
+      "properties": {
+        "common": {
+          "$ref": "#/definitions/logistics_businessCommonResponse"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}
