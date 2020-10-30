@@ -1,7 +1,7 @@
 package http_server
 
 import (
-	"log"
+	"gitee.com/cristiane/micro-mall-logistics/proto"
 	"net/http"
 	"strings"
 
@@ -14,7 +14,6 @@ func SwaggerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !strings.HasSuffix(r.URL.Path, "swagger.json") {
-		log.Printf("Not Found: %s", r.URL.Path)
 		http.NotFound(w, r)
 		return
 	}
@@ -24,7 +23,7 @@ func SwaggerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/json")
 
 	path := strings.TrimPrefix(r.URL.Path, "/swagger/")
-	bytes, err := Asset(path)
+	bytes, err := proto.Asset(path)
 	if err == nil {
 		w.Write(bytes)
 	}

@@ -1,75 +1,44 @@
 package args
 
-type CreateOrderRsp struct {
-	TxCode string
-}
-
-type ShopOrderDetail struct {
-	ShopCode    string `json:"shop_code"`
-	OrderCode   string `json:"order_code"`
-	TimeExpire  string `json:"time_expire"`
-	Description string `json:"description"`
-	Amount      string `json:"amount"`
-	CoinType    int    `json:"coin_type"`
-	NotifyUrl   string `json:"notify_url"`
-}
-
-type OrderDetailRsp struct {
-	UserCode string            `json:"user_code"`
-	CoinType int               `json:"coin_type"`
-	List     []ShopOrderDetail `json:"list"`
-}
-
-const (
-	RpcServiceMicroMallUsers = "micro-mall-users"
-	RpcServiceMicroMallShop  = "micro-mall-shop"
-	RpcServiceMicroMallSku   = "micro-mall-sku"
+var (
+	LogisticsStateType map[int]string
 )
 
-const (
-	TaskNameTradeOrderNotice    = "task_trade_order_notice"
-	TaskNameTradeOrderNoticeErr = "task_trade_order_notice_err"
-)
-
-const (
-	ConfigKvShopOrderNotifyUrl = "shop_order_notify_url"
-)
-
-type CommonBusinessMsg struct {
-	Type int    `json:"type"`
-	Tag  string `json:"tag"`
-	UUID string `json:"uuid"`
-	Msg  string `json:"msg"`
-}
-
-type TradeOrderDetail struct {
-	ShopId    int64  `json:"shop_id"`
-	OrderCode string `json:"order_code"`
-}
-
-type TradeOrderNotice struct {
-	Uid  int64  `json:"uid"`
-	Time string `json:"time"`
-	// 9-19 修改，直接通知交易号
-	TxCode string `json:"tx_code"`
-}
-
-const (
-	Unknown                   = 0
-	TradeOrderEventTypeCreate = 10014
-	TradeOrderEventTypeExpire = 10015
-)
-
-var MsgFlags = map[int]string{
-	Unknown:                   "未知",
-	TradeOrderEventTypeCreate: "交易订单创建",
-	TradeOrderEventTypeExpire: "交易订单过期",
-}
-
-func GetMsg(code int) string {
-	msg, ok := MsgFlags[code]
-	if ok {
-		return msg
+func init() {
+	LogisticsStateType = map[int]string{
+		0: "仓库准备中",
+		1: "已打包",
+		2: "交付物流",
+		3: "运输中",
 	}
-	return MsgFlags[Unknown]
+}
+
+type LogisticsState struct {
+	Id            int64  `json:"id"`
+	LogisticsCode string `json:"logistics_code"`
+	State         string `json:"state"`
+	Description   string `json:"description"`
+	Flag          string `json:"flag"`
+	Operator      string `json:"operator"`
+	CreateTime    string `json:"create_time"`
+	Location      string `json:"location"`
+}
+
+type LogisticsRecord struct {
+	Courier     string           `json:"courier"`
+	CourierType string           `json:"courier_type"`
+	ReceiveType string           `json:"receive_type"`
+	Customer    CustomerInfo     `json:"customer"`
+	Goods       string           `json:"goods"`
+	StateList   []LogisticsState `json:"state_list"`
+}
+
+type CustomerInfo struct {
+	SendUser     string `json:"send_user"`
+	SendAddr     string `json:"send_addr"`
+	SendPhone    string `json:"send_phone"`
+	SendTime     string `json:"send_time"`
+	ReceiveUser  string `json:"receive_user"`
+	ReceiveAddr  string `json:"receive_addr"`
+	ReceivePhone string `json:"receive_phone"`
 }

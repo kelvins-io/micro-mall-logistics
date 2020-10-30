@@ -6,10 +6,10 @@ import "gitee.com/kelvins-io/common/proto/google/api/annotations.proto";
 
 // 物流业务
 service LogisticsBusinessService {
-    // 创建物流记录
-    rpc CreateRecord(CreateRecordRequest) returns (CreateRecordResponse) {
+    // 申请物流
+    rpc ApplyLogistics(ApplyLogisticsRequest) returns (ApplyLogisticsResponse) {
         option (google.api.http) = {
-            post: "/v1/logistics/create"
+            post: "/v1/logistics/apply"
             body:"*"
         };
     }
@@ -17,7 +17,6 @@ service LogisticsBusinessService {
     rpc QueryRecord(QueryRecordRequest) returns (QueryRecordResponse) {
         option (google.api.http) = {
             get: "/v1/logistics/query"
-
         };
     }
     // 更新物流状态
@@ -52,13 +51,32 @@ enum RetCode {
     DECIMAL_PARSE_ERR = 6000007;
     TRANSACTION_FAILED = 6000008;
     ACCOUNT_EXIST = 6000009;
+    LOGISTICS_CODE_NOT_EXIST = 6000010;
+}
+
+enum LogisticsStateType {
+    INIT = 0; // 初始
+    MERCHANTS = 100; // 商户
+    WAREHOUSE = 200; // 仓库
+    WAREHOUSE_SWITCH = 201; // 仓库调换
+    WAREHOUSE_PREPARE = 202; // 仓库准备
+    TRANSPORT = 300; // 物流
+    TRANSPORT_READY = 301; // 物流就绪
+    DELIVERY = 400; // 派送
+    RECEIVE = 500; // 签收
+    EXCHANGE = 600; // 换货
+    RETURN = 700; // 退货
 }
 
 message LogisticsState {
-    string location = 1;
-    string op_user = 2;
-    string content = 3;
-    bool is_over = 4;
+    int64 id = 1;
+    string logistics_code = 2;
+    LogisticsStateType state = 3;
+    string description = 4;
+    string flag = 5;
+    string operator = 6;
+    string location = 7;
+    string create_time = 8;
 }
 
 message UpdateStateRequest {
@@ -76,7 +94,12 @@ message QueryRecordRequest {
 
 message QueryRecordResponse {
     CommonResponse common = 1;
-    repeated LogisticsState state_list = 2;
+    string courier = 2; // 国内承运人
+    string courier_type = 3; // 承运方式，普通，空运，加急
+    string receive_type = 4;
+    CustomerInfo customer  = 299; // 客户信息
+    string goods = 300; // 货物信息
+    repeated LogisticsState state_list = 301;
 }
 
 message CustomerInfo {
@@ -90,19 +113,23 @@ message CustomerInfo {
 }
 
 message GoodsInfo {
-    string order_code = 1;
+    string sku_code = 1;
     string name = 2;
+    string kind = 3;
+    int64 count = 4;
 }
 
-message CreateRecordRequest {
+message ApplyLogisticsRequest {
     string out_trade_no = 1; // 外部交易号，订单号
     string courier = 2; // 国内承运人
     int32 courier_type = 3; // 承运方式，普通，空运，加急
+    int32 receive_type = 4;
+    string send_time = 5;
     CustomerInfo customer  = 299; // 客户信息
     repeated GoodsInfo goods = 300; // 货物信息
 }
 
-message CreateRecordResponse {
+message ApplyLogisticsResponse {
     CommonResponse common = 1;
     string logistics_code = 3;
 }

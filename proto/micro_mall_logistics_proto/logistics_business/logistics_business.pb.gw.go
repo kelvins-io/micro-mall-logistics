@@ -31,8 +31,8 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = descriptor.ForMessage
 
-func request_LogisticsBusinessService_CreateRecord_0(ctx context.Context, marshaler runtime.Marshaler, client LogisticsBusinessServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateRecordRequest
+func request_LogisticsBusinessService_ApplyLogistics_0(ctx context.Context, marshaler runtime.Marshaler, client LogisticsBusinessServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ApplyLogisticsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -43,13 +43,13 @@ func request_LogisticsBusinessService_CreateRecord_0(ctx context.Context, marsha
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.CreateRecord(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ApplyLogistics(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_LogisticsBusinessService_CreateRecord_0(ctx context.Context, marshaler runtime.Marshaler, server LogisticsBusinessServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateRecordRequest
+func local_request_LogisticsBusinessService_ApplyLogistics_0(ctx context.Context, marshaler runtime.Marshaler, server LogisticsBusinessServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ApplyLogisticsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -60,7 +60,7 @@ func local_request_LogisticsBusinessService_CreateRecord_0(ctx context.Context, 
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.CreateRecord(ctx, &protoReq)
+	msg, err := server.ApplyLogistics(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -141,7 +141,7 @@ func local_request_LogisticsBusinessService_UpdateState_0(ctx context.Context, m
 // Note that using this registration option will cause many gRPC library features (such as grpc.SendHeader, etc) to stop working. Consider using RegisterLogisticsBusinessServiceHandlerFromEndpoint instead.
 func RegisterLogisticsBusinessServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server LogisticsBusinessServiceServer) error {
 
-	mux.Handle("POST", pattern_LogisticsBusinessService_CreateRecord_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_LogisticsBusinessService_ApplyLogistics_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -150,14 +150,14 @@ func RegisterLogisticsBusinessServiceHandlerServer(ctx context.Context, mux *run
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_LogisticsBusinessService_CreateRecord_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_LogisticsBusinessService_ApplyLogistics_0(rctx, inboundMarshaler, server, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_LogisticsBusinessService_CreateRecord_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_LogisticsBusinessService_ApplyLogistics_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -242,7 +242,7 @@ func RegisterLogisticsBusinessServiceHandler(ctx context.Context, mux *runtime.S
 // "LogisticsBusinessServiceClient" to call the correct interceptors.
 func RegisterLogisticsBusinessServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client LogisticsBusinessServiceClient) error {
 
-	mux.Handle("POST", pattern_LogisticsBusinessService_CreateRecord_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_LogisticsBusinessService_ApplyLogistics_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -251,14 +251,14 @@ func RegisterLogisticsBusinessServiceHandlerClient(ctx context.Context, mux *run
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_LogisticsBusinessService_CreateRecord_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_LogisticsBusinessService_ApplyLogistics_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_LogisticsBusinessService_CreateRecord_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_LogisticsBusinessService_ApplyLogistics_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -306,7 +306,7 @@ func RegisterLogisticsBusinessServiceHandlerClient(ctx context.Context, mux *run
 }
 
 var (
-	pattern_LogisticsBusinessService_CreateRecord_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "logistics", "create"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_LogisticsBusinessService_ApplyLogistics_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "logistics", "apply"}, "", runtime.AssumeColonVerbOpt(true)))
 
 	pattern_LogisticsBusinessService_QueryRecord_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "logistics", "query"}, "", runtime.AssumeColonVerbOpt(true)))
 
@@ -314,7 +314,7 @@ var (
 )
 
 var (
-	forward_LogisticsBusinessService_CreateRecord_0 = runtime.ForwardResponseMessage
+	forward_LogisticsBusinessService_ApplyLogistics_0 = runtime.ForwardResponseMessage
 
 	forward_LogisticsBusinessService_QueryRecord_0 = runtime.ForwardResponseMessage
 

@@ -11,15 +11,15 @@
     "application/json"
   ],
   "paths": {
-    "/v1/logistics/create": {
+    "/v1/logistics/apply": {
       "post": {
-        "summary": "创建物流记录",
-        "operationId": "LogisticsBusinessService_CreateRecord",
+        "summary": "申请物流",
+        "operationId": "LogisticsBusinessService_ApplyLogistics",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/logistics_businessCreateRecordResponse"
+              "$ref": "#/definitions/logistics_businessApplyLogisticsResponse"
             }
           },
           "default": {
@@ -35,7 +35,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/logistics_businessCreateRecordRequest"
+              "$ref": "#/definitions/logistics_businessApplyLogisticsRequest"
             }
           }
         ],
@@ -110,18 +110,7 @@
     }
   },
   "definitions": {
-    "logistics_businessCommonResponse": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "$ref": "#/definitions/logistics_businessRetCode"
-        },
-        "msg": {
-          "type": "string"
-        }
-      }
-    },
-    "logistics_businessCreateRecordRequest": {
+    "logistics_businessApplyLogisticsRequest": {
       "type": "object",
       "properties": {
         "out_trade_no": {
@@ -134,6 +123,13 @@
           "type": "integer",
           "format": "int32"
         },
+        "receive_type": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "send_time": {
+          "type": "string"
+        },
         "customer": {
           "$ref": "#/definitions/logistics_businessCustomerInfo"
         },
@@ -145,13 +141,24 @@
         }
       }
     },
-    "logistics_businessCreateRecordResponse": {
+    "logistics_businessApplyLogisticsResponse": {
       "type": "object",
       "properties": {
         "common": {
           "$ref": "#/definitions/logistics_businessCommonResponse"
         },
         "logistics_code": {
+          "type": "string"
+        }
+      }
+    },
+    "logistics_businessCommonResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "$ref": "#/definitions/logistics_businessRetCode"
+        },
+        "msg": {
           "type": "string"
         }
       }
@@ -185,37 +192,88 @@
     "logistics_businessGoodsInfo": {
       "type": "object",
       "properties": {
-        "order_code": {
+        "sku_code": {
           "type": "string"
         },
         "name": {
           "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "count": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },
     "logistics_businessLogisticsState": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "logistics_code": {
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/definitions/logistics_businessLogisticsStateType"
+        },
+        "description": {
+          "type": "string"
+        },
+        "flag": {
+          "type": "string"
+        },
+        "operator": {
+          "type": "string"
+        },
         "location": {
           "type": "string"
         },
-        "op_user": {
+        "create_time": {
           "type": "string"
-        },
-        "content": {
-          "type": "string"
-        },
-        "is_over": {
-          "type": "boolean",
-          "format": "boolean"
         }
       }
+    },
+    "logistics_businessLogisticsStateType": {
+      "type": "string",
+      "enum": [
+        "INIT",
+        "MERCHANTS",
+        "WAREHOUSE",
+        "WAREHOUSE_SWITCH",
+        "WAREHOUSE_PREPARE",
+        "TRANSPORT",
+        "TRANSPORT_READY",
+        "DELIVERY",
+        "RECEIVE",
+        "EXCHANGE",
+        "RETURN"
+      ],
+      "default": "INIT"
     },
     "logistics_businessQueryRecordResponse": {
       "type": "object",
       "properties": {
         "common": {
           "$ref": "#/definitions/logistics_businessCommonResponse"
+        },
+        "courier": {
+          "type": "string"
+        },
+        "courier_type": {
+          "type": "string"
+        },
+        "receive_type": {
+          "type": "string"
+        },
+        "customer": {
+          "$ref": "#/definitions/logistics_businessCustomerInfo"
+        },
+        "goods": {
+          "type": "string"
         },
         "state_list": {
           "type": "array",
@@ -248,7 +306,8 @@
         "USER_ACCOUNT_STATE_LOCK",
         "DECIMAL_PARSE_ERR",
         "TRANSACTION_FAILED",
-        "ACCOUNT_EXIST"
+        "ACCOUNT_EXIST",
+        "LOGISTICS_CODE_NOT_EXIST"
       ],
       "default": "SUCCESS"
     },
