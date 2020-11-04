@@ -17,6 +17,7 @@ const (
 	SkuCodeExist          = 29000014
 	SkuAmountNotEnough    = 29000015
 	LogisticsCodeNotExist = 29000016
+	LogisticsCodeExist    = 29000017
 )
 
 var ErrMap = make(map[int]string)
@@ -37,6 +38,7 @@ func init() {
 		SkuCodeExist:          "商品唯一code已存在系统",
 		SkuAmountNotEnough:    "商品库存不够",
 		LogisticsCodeNotExist: "物流订单号不存在",
+		LogisticsCodeExist:    "物流订单已存在",
 	}
 	errcode.RegisterErrMsgDict(dict)
 	for key, _ := range dict {

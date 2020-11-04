@@ -29,8 +29,17 @@ func (l *LogisticsServer) ApplyLogistics(ctx context.Context, req *logistics_bus
 	}
 	id, retCode := service.CreateRecord(ctx, req)
 	if retCode != code.Success {
-		result.Common.Code = logistics_business.RetCode_ERROR
-		result.Common.Msg = errcode.GetErrMsg(retCode)
+		switch retCode {
+		case code.LogisticsCodeExist:
+			result.Common.Code = logistics_business.RetCode_LOGISTICS_CODE_EXIST
+			result.Common.Msg = errcode.GetErrMsg(retCode)
+		case code.LogisticsCodeNotExist:
+			result.Common.Code = logistics_business.RetCode_LOGISTICS_CODE_NOT_EXIST
+			result.Common.Msg = errcode.GetErrMsg(retCode)
+		default:
+			result.Common.Code = logistics_business.RetCode_ERROR
+			result.Common.Msg = errcode.GetErrMsg(retCode)
+		}
 		return result, nil
 	}
 	result.LogisticsCode = id

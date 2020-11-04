@@ -307,7 +307,8 @@
         "DECIMAL_PARSE_ERR",
         "TRANSACTION_FAILED",
         "ACCOUNT_EXIST",
-        "LOGISTICS_CODE_NOT_EXIST"
+        "LOGISTICS_CODE_NOT_EXIST",
+        "LOGISTICS_CODE_EXIST"
       ],
       "default": "SUCCESS"
     },

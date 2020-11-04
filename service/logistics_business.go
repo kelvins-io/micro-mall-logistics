@@ -13,6 +13,7 @@ import (
 	"gitee.com/cristiane/micro-mall-logistics/vars"
 	"gitee.com/kelvins-io/common/json"
 	"gitee.com/kelvins-io/kelvins"
+	"time"
 )
 
 const (
@@ -22,6 +23,23 @@ const (
 func CreateRecord(ctx context.Context, req *logistics_business.ApplyLogisticsRequest) (result string, retCode int) {
 	result = ""
 	retCode = code.Success
+	// 检查订单号是否已申请物流
+	where := map[string]interface{}{
+		"order_code": req.OutTradeNo,
+	}
+	orderLogisticsDB, err := repository.GetOrderLogistics("order_code", where)
+	if err != nil {
+		kelvins.ErrLogger.Errorf(ctx, "GetOrderLogistics err: %v, where: %+v", err, where)
+		retCode = code.ErrorServer
+		result = ""
+		return
+	}
+	if orderLogisticsDB.OrderCode != "" {
+		retCode = code.LogisticsCodeExist
+		result = ""
+		return
+	}
+	// 处理物流
 	logisticsCode := util.GetUUID()
 	result = logisticsCode
 	goods := json.MarshalToStringNoError(req.Goods)
@@ -40,6 +58,8 @@ func CreateRecord(ctx context.Context, req *logistics_business.ApplyLogisticsReq
 		TransportKind: fmt.Sprintf("%d", req.CourierType),
 		ReceiverKind:  fmt.Sprintf("%d", req.ReceiveType),
 		Goods:         goods,
+		CreateTime:    time.Now(),
+		UpdateTime:    time.Now(),
 	}
 	logisticsRecord := &mysql.LogisticsRecord{
 		LogisticsCode: logisticsCode,
@@ -48,11 +68,23 @@ func CreateRecord(ctx context.Context, req *logistics_business.ApplyLogisticsReq
 		Description:   "物流单创建成功",
 		Flag:          "快递员揽件",
 		Operator:      "微商城",
+		CreateTime:    time.Now(),
+		UpdateTime:    time.Now(),
 	}
 	session := kelvins.XORM_DBEngine.NewSession()
-	err := repository.CreateLogisticsRecord(session, logisticsRecord)
+	err = session.Begin()
 	if err != nil {
-		session.Rollback()
+		kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord NewSession err: %v")
+		retCode = code.ErrorServer
+		result = ""
+		return
+	}
+	err = repository.CreateLogisticsRecord(session, logisticsRecord)
+	if err != nil {
+		errRoll := session.Rollback()
+		if errRoll != nil {
+			kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord Rollback err: %v", errRoll)
+		}
 		kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord err: %v, model: %+v", err, logisticsRecord)
 		retCode = code.ErrorServer
 		result = ""
@@ -60,13 +92,19 @@ func CreateRecord(ctx context.Context, req *logistics_business.ApplyLogisticsReq
 	}
 	err = repository.CreateOrderLogistics(session, orderLogistics)
 	if err != nil {
-		session.Rollback()
+		errRoll := session.Rollback()
+		if errRoll != nil {
+			kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord Rollback err: %v", errRoll)
+		}
 		kelvins.ErrLogger.Errorf(ctx, "CreateOrderLogistics err: %v, model: %+v", err, orderLogistics)
 		retCode = code.ErrorServer
 		result = ""
 		return
 	}
-	session.Commit()
+	errCommit := session.Commit()
+	if errCommit != nil {
+		kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord Commit err: %v", errCommit)
+	}
 	// 触发消息通知
 	noticeMsg := fmt.Sprintf(logisticsNoticeT, req.Customer.SendUser, req.OutTradeNo, goods, req.Courier)
 	err = email.SendEmailNotice(ctx, "565608463@qq.com", vars.AppName, noticeMsg)
