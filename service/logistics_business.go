@@ -23,26 +23,29 @@ const (
 func CreateRecord(ctx context.Context, req *logistics_business.ApplyLogisticsRequest) (result string, retCode int) {
 	result = ""
 	retCode = code.Success
-	// 检查订单号是否已申请物流
-	where := map[string]interface{}{
-		"order_code": req.OutTradeNo,
-	}
-	orderLogisticsDB, err := repository.GetOrderLogistics("order_code", where)
-	if err != nil {
-		kelvins.ErrLogger.Errorf(ctx, "GetOrderLogistics err: %v, where: %+v", err, where)
-		retCode = code.ErrorServer
-		result = ""
+	// 检查物流记录是否已存在
+	retCode = checkLogisticsRecord(ctx, req)
+	if retCode != code.Success {
 		return
 	}
-	if orderLogisticsDB.OrderCode != "" {
-		retCode = code.LogisticsCodeExist
-		result = ""
+	// 创建物流记录
+	logisticsCode, goods, retCode := createLogisticsRecord(ctx, req)
+	if retCode != code.Success {
 		return
 	}
-	// 处理物流
-	logisticsCode := util.GetUUID()
+
+	// 物流通知
+	go createLogisticsRecordNotice(ctx, req, goods)
+
 	result = logisticsCode
-	goods := json.MarshalToStringNoError(req.Goods)
+	return result, retCode
+}
+
+func createLogisticsRecord(ctx context.Context, req *logistics_business.ApplyLogisticsRequest) (result, goods string, retCode int) {
+	// 处理物流
+	retCode = code.Success
+	logisticsCode := util.GetUUID()
+	goods = json.MarshalToStringNoError(req.Goods)
 	orderLogistics := &mysql.OrderLogistics{
 		LogisticsCode: logisticsCode,
 		OrderCode:     req.OutTradeNo,
@@ -72,11 +75,10 @@ func CreateRecord(ctx context.Context, req *logistics_business.ApplyLogisticsReq
 		UpdateTime:    time.Now(),
 	}
 	session := kelvins.XORM_DBEngine.NewSession()
-	err = session.Begin()
+	err := session.Begin()
 	if err != nil {
-		kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord NewSession err: %v")
+		kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord Begin err: %v")
 		retCode = code.ErrorServer
-		result = ""
 		return
 	}
 	err = repository.CreateLogisticsRecord(session, logisticsRecord)
@@ -87,32 +89,50 @@ func CreateRecord(ctx context.Context, req *logistics_business.ApplyLogisticsReq
 		}
 		kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord err: %v, model: %+v", err, logisticsRecord)
 		retCode = code.ErrorServer
-		result = ""
 		return
 	}
 	err = repository.CreateOrderLogistics(session, orderLogistics)
 	if err != nil {
 		errRoll := session.Rollback()
 		if errRoll != nil {
-			kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord Rollback err: %v", errRoll)
+			kelvins.ErrLogger.Errorf(ctx, "CreateOrderLogistics Rollback err: %v", errRoll)
 		}
 		kelvins.ErrLogger.Errorf(ctx, "CreateOrderLogistics err: %v, model: %+v", err, orderLogistics)
 		retCode = code.ErrorServer
-		result = ""
 		return
 	}
 	errCommit := session.Commit()
 	if errCommit != nil {
-		kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord Commit err: %v", errCommit)
+		kelvins.ErrLogger.Errorf(ctx, "CreateOrderLogistics Commit err: %v", errCommit)
+		retCode = code.ErrorServer
+		return
 	}
+	return logisticsCode, goods, retCode
+}
+
+func createLogisticsRecordNotice(ctx context.Context, req *logistics_business.ApplyLogisticsRequest, goods string) {
 	// 触发消息通知
 	noticeMsg := fmt.Sprintf(logisticsNoticeT, req.Customer.SendUser, req.OutTradeNo, goods, req.Courier)
-	err = email.SendEmailNotice(ctx, "565608463@qq.com", vars.AppName, noticeMsg)
+	err := email.SendEmailNotice(ctx, "565608463@qq.com", vars.AppName, noticeMsg)
 	if err != nil {
 		kelvins.ErrLogger.Errorf(ctx, "SendEmailNotice err: %v, noticeMsg: %+v", err, noticeMsg)
 	}
+}
 
-	return result, retCode
+func checkLogisticsRecord(ctx context.Context, req *logistics_business.ApplyLogisticsRequest) int {
+	// 检查订单号是否已申请物流
+	where := map[string]interface{}{
+		"order_code": req.OutTradeNo,
+	}
+	orderLogisticsDB, err := repository.GetOrderLogistics("order_code", where)
+	if err != nil {
+		kelvins.ErrLogger.Errorf(ctx, "GetOrderLogistics err: %v, where: %+v", err, where)
+		return code.ErrorServer
+	}
+	if orderLogisticsDB.OrderCode != "" {
+		return code.LogisticsCodeExist
+	}
+	return code.Success
 }
 
 func QueryRecord(ctx context.Context, req *logistics_business.QueryRecordRequest) (*args.LogisticsRecord, int) {
