@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	logisticsNoticeT = "尊敬的【%v】你好，你的订单【%v-%v】已经发货啦，欢迎你随时关注【%v】物流状态，祝你购物愉快"
+	logisticsNoticeT = "尊敬的【%v】你好，你的订单号【%v】包含商品【%v】由【%v】处理完成。已经发货啦，欢迎你随时关注【%v】物流状态，祝你购物愉快"
 )
 
 func CreateRecord(ctx context.Context, req *logistics_business.ApplyLogisticsRequest) (result string, retCode int) {
@@ -112,7 +112,7 @@ func createLogisticsRecord(ctx context.Context, req *logistics_business.ApplyLog
 
 func createLogisticsRecordNotice(ctx context.Context, req *logistics_business.ApplyLogisticsRequest, goods string) {
 	// 触发消息通知
-	noticeMsg := fmt.Sprintf(logisticsNoticeT, req.Customer.SendUser, req.OutTradeNo, goods, req.Courier)
+	noticeMsg := fmt.Sprintf(logisticsNoticeT, req.Customer.ReceiveUser, req.OutTradeNo, goods, req.Customer.SendUser, req.Courier)
 	err := email.SendEmailNotice(ctx, "565608463@qq.com", vars.AppName, noticeMsg)
 	if err != nil {
 		kelvins.ErrLogger.Errorf(ctx, "SendEmailNotice err: %v, noticeMsg: %+v", err, noticeMsg)
