@@ -1446,7 +1446,7 @@ func (c *logisticsBusinessServiceClient) UpdateState(ctx context.Context, in *Up
 	return out, nil
 }
 
-// LogisticsBusinessServiceServer is the server API for LogisticsBusinessService service.
+// LogisticsBusinessServiceServer is the internal API for LogisticsBusinessService service.
 type LogisticsBusinessServiceServer interface {
 	// 申请物流
 	ApplyLogistics(context.Context, *ApplyLogisticsRequest) (*ApplyLogisticsResponse, error)
