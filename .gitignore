@@ -14,3 +14,7 @@ vendor
 logs
 etc/app.ini
 micro-mall-logistics
+micro-mall-logistics.pid
+micro-mall-logistics-darwin-amd64
+micro-mall-logistics-linux-amd64
+micro-mall-logistics-windows-amd64.exe
