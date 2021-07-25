@@ -23,9 +23,7 @@ func (l *LogisticsServer) ApplyLogistics(ctx context.Context, req *logistics_bus
 	result := &logistics_business.ApplyLogisticsResponse{
 		Common: &logistics_business.CommonResponse{
 			Code: logistics_business.RetCode_SUCCESS,
-			Msg:  "",
 		},
-		LogisticsCode: "",
 	}
 	id, retCode := service.CreateRecord(ctx, req)
 	if retCode != code.Success {

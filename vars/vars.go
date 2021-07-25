@@ -3,7 +3,8 @@ package vars
 import "gitee.com/kelvins-io/common/queue"
 
 var (
-	EmailConfigSetting    *EmailConfigSettingS
 	AppName               = ""
+	EmailConfigSetting    *EmailConfigSettingS
 	TradeOrderQueueServer *queue.MachineryQueue
+	EmailNoticeSetting *EmailNoticeSettingS
 )
