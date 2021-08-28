@@ -83,7 +83,7 @@ func createLogisticsRecord(ctx context.Context, req *logistics_business.ApplyLog
 		if errRoll != nil {
 			kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord Rollback err: %v", errRoll)
 		}
-		kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord err: %v, model: %+v", err, logisticsRecord)
+		kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord err: %v, model: %v", err, json.MarshalToStringNoError(logisticsRecord))
 		retCode = code.ErrorServer
 		return
 	}
@@ -93,7 +93,7 @@ func createLogisticsRecord(ctx context.Context, req *logistics_business.ApplyLog
 		if errRoll != nil {
 			kelvins.ErrLogger.Errorf(ctx, "CreateOrderLogistics Rollback err: %v", errRoll)
 		}
-		kelvins.ErrLogger.Errorf(ctx, "CreateOrderLogistics err: %v, model: %+v", err, orderLogistics)
+		kelvins.ErrLogger.Errorf(ctx, "CreateOrderLogistics err: %v, model: %v", err, json.MarshalToStringNoError(orderLogistics))
 		retCode = code.ErrorServer
 		return
 	}
@@ -124,7 +124,7 @@ func checkLogisticsRecord(ctx context.Context, req *logistics_business.ApplyLogi
 	}
 	orderLogisticsDB, err := repository.GetOrderLogistics("order_code", where)
 	if err != nil {
-		kelvins.ErrLogger.Errorf(ctx, "GetOrderLogistics err: %v, where: %+v", err, where)
+		kelvins.ErrLogger.Errorf(ctx, "GetOrderLogistics err: %v, where: %v", err, json.MarshalToStringNoError(where))
 		return code.ErrorServer
 	}
 	if orderLogisticsDB.OrderCode != "" {
@@ -148,7 +148,7 @@ func QueryRecord(ctx context.Context, req *logistics_business.QueryRecordRequest
 	}
 	recordList, total, err := repository.GetLogisticsRecordList("*", where, nil, nil, 0, 0)
 	if err != nil {
-		kelvins.ErrLogger.Errorf(ctx, "GetLogisticsRecordList err: %v, where: %+v", err, where)
+		kelvins.ErrLogger.Errorf(ctx, "GetLogisticsRecordList err: %v, where: %v", err, json.MarshalToStringNoError(where))
 		retCode = code.ErrorServer
 		return result, retCode
 	}
@@ -167,7 +167,7 @@ func QueryRecord(ctx context.Context, req *logistics_business.QueryRecordRequest
 	}
 	orderLogisticsList, total, err := repository.GetOrderLogisticsList("*", where, nil, nil, 0, 0)
 	if err != nil {
-		kelvins.ErrLogger.Errorf(ctx, "GetOrderLogisticsList err: %v, where: %+v", err, where)
+		kelvins.ErrLogger.Errorf(ctx, "GetOrderLogisticsList err: %v, where: %v", err, json.MarshalToStringNoError(where))
 		retCode = code.ErrorServer
 		return result, retCode
 	}
@@ -194,7 +194,7 @@ func UpdateState(ctx context.Context, req *logistics_business.UpdateStateRequest
 	where := " logistics_code = '" + req.LogisticsCode + "'"
 	recordDB, err := repository.GetOrderLogistics("*", where)
 	if err != nil {
-		kelvins.ErrLogger.Errorf(ctx, "GetOrderLogistics err: %v, where: %+v", err, where)
+		kelvins.ErrLogger.Errorf(ctx, "GetOrderLogistics err: %v, where: %v", err, json.MarshalToStringNoError(where))
 		retCode = code.ErrorServer
 		return retCode
 	}
@@ -212,7 +212,7 @@ func UpdateState(ctx context.Context, req *logistics_business.UpdateStateRequest
 	}
 	err = repository.AddLogisticsRecord(record)
 	if err != nil {
-		kelvins.ErrLogger.Errorf(ctx, "AddLogisticsRecord err: %v, record: %+v", err, record)
+		kelvins.ErrLogger.Errorf(ctx, "AddLogisticsRecord err: %v, record: %v", err, json.MarshalToStringNoError(record))
 		retCode = code.ErrorServer
 		return retCode
 	}
