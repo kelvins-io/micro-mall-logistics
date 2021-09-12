@@ -2,7 +2,6 @@ package main
 
 import (
 	"gitee.com/cristiane/micro-mall-logistics/startup"
-	"gitee.com/cristiane/micro-mall-logistics/vars"
 	"gitee.com/kelvins-io/kelvins"
 	"gitee.com/kelvins-io/kelvins/app"
 )
@@ -10,7 +9,6 @@ import (
 const APP_NAME = "micro-mall-logistics"
 
 func main() {
-	vars.AppName = APP_NAME
 	application := &kelvins.GRPCApplication{
 		Application: &kelvins.Application{
 			LoadConfig: startup.LoadConfig,

@@ -110,7 +110,7 @@ func createLogisticsRecordNotice(ctx context.Context, req *logistics_business.Ap
 	// 触发消息通知
 	emailNotice := fmt.Sprintf(args.LogisticsNotice, req.Customer.ReceiveUser, req.OutTradeNo, goods, req.Customer.SendUser, req.Courier)
 	for _, receiver := range vars.EmailNoticeSetting.Receivers {
-		err := email.SendEmailNotice(ctx, receiver, vars.AppName, emailNotice)
+		err := email.SendEmailNotice(ctx, receiver, kelvins.AppName, emailNotice)
 		if err != nil {
 			kelvins.ErrLogger.Info(ctx, "createLogisticsRecordNotice SendEmailNotice err, emailNotice: %v", emailNotice)
 		}

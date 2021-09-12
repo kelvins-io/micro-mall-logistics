@@ -28,18 +28,6 @@ Password = "xx"
 DB = 6
 PoolNum = 10
 
-[kelvins-queue-amqp]
-Broker = "amqp://micro-mall:szJ9aePR@localhost:5672/micro-mall"
-DefaultQueue = "trade_logistics_notice"
-ResultBackend = "redis://xxx@127.0.0.1:6379/6"
-ResultsExpireIn = 36000
-Exchange = "trade_logistics_notice"
-ExchangeType = "direct"
-BindingKey = "trade_logistics_notice"
-PrefetchCount = 5
-TaskRetryCount = 3
-TaskRetryTimeout = 36000
-
 
 [email-config]
 User = "xxx@qq.com"
