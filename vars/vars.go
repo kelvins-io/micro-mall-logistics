@@ -1,6 +1,6 @@
 package vars
 
 var (
-	EmailConfigSetting    *EmailConfigSettingS
+	EmailConfigSetting *EmailConfigSettingS
 	EmailNoticeSetting *EmailNoticeSettingS
 )
