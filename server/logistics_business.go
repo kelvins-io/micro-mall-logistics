@@ -30,13 +30,12 @@ func (l *LogisticsServer) ApplyLogistics(ctx context.Context, req *logistics_bus
 		switch retCode {
 		case code.LogisticsCodeExist:
 			result.Common.Code = logistics_business.RetCode_LOGISTICS_CODE_EXIST
-			result.Common.Msg = errcode.GetErrMsg(retCode)
 		case code.LogisticsCodeNotExist:
 			result.Common.Code = logistics_business.RetCode_LOGISTICS_CODE_NOT_EXIST
-			result.Common.Msg = errcode.GetErrMsg(retCode)
+		case code.TransactionFailed:
+			result.Common.Code = logistics_business.RetCode_TRANSACTION_FAILED
 		default:
 			result.Common.Code = logistics_business.RetCode_ERROR
-			result.Common.Msg = errcode.GetErrMsg(retCode)
 		}
 		return result, nil
 	}

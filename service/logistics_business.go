@@ -77,22 +77,23 @@ func createLogisticsRecord(ctx context.Context, req *logistics_business.ApplyLog
 		retCode = code.ErrorServer
 		return
 	}
+	defer func() {
+		if retCode != code.Success {
+			err := session.Rollback()
+			if err != nil {
+				kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord Rollback err: %v")
+				return
+			}
+		}
+	}()
 	err = repository.CreateLogisticsRecord(session, logisticsRecord)
 	if err != nil {
-		errRoll := session.Rollback()
-		if errRoll != nil {
-			kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord Rollback err: %v", errRoll)
-		}
 		kelvins.ErrLogger.Errorf(ctx, "CreateLogisticsRecord err: %v, model: %v", err, json.MarshalToStringNoError(logisticsRecord))
 		retCode = code.ErrorServer
 		return
 	}
 	err = repository.CreateOrderLogistics(session, orderLogistics)
 	if err != nil {
-		errRoll := session.Rollback()
-		if errRoll != nil {
-			kelvins.ErrLogger.Errorf(ctx, "CreateOrderLogistics Rollback err: %v", errRoll)
-		}
 		kelvins.ErrLogger.Errorf(ctx, "CreateOrderLogistics err: %v, model: %v", err, json.MarshalToStringNoError(orderLogistics))
 		retCode = code.ErrorServer
 		return
@@ -100,7 +101,7 @@ func createLogisticsRecord(ctx context.Context, req *logistics_business.ApplyLog
 	errCommit := session.Commit()
 	if errCommit != nil {
 		kelvins.ErrLogger.Errorf(ctx, "CreateOrderLogistics Commit err: %v", errCommit)
-		retCode = code.ErrorServer
+		retCode = code.TransactionFailed
 		return
 	}
 	return logisticsCode, goods, retCode
