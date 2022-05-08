@@ -5,7 +5,6 @@ import "time"
 const (
 	TableLogisticsRecord = "logistics_record"
 	TableOrderLogistics  = "order_logistics"
-	TableConfigKv        = "config_kv_store"
 )
 
 type LogisticsRecord struct {
@@ -19,17 +18,7 @@ type LogisticsRecord struct {
 	CreateTime    time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('创建时间') DATETIME"`
 	UpdateTime    time.Time `xorm:"not null default CURRENT_TIMESTAMP comment('更新时间') DATETIME"`
 }
-type ConfigKvStore struct {
-	Id          int       `xorm:"not null pk autoincr comment('主键') INT"`
-	ConfigKey   string    `xorm:"not null comment('配置键') unique VARCHAR(255)"`
-	ConfigValue string    `xorm:"not null comment('配置值') VARCHAR(255)"`
-	Prefix      string    `xorm:"not null comment('配置前缀') VARCHAR(255)"`
-	Suffix      string    `xorm:"not null comment('配置后缀') VARCHAR(255)"`
-	Status      int       `xorm:"not null default 1 comment('是否启用 1是 0否') TINYINT"`
-	IsDelete    int       `xorm:"not null default 0 comment('是否删除 1是 0否') TINYINT"`
-	CreateTime  time.Time `xorm:"default CURRENT_TIMESTAMP comment('创建时间') DATETIME"`
-	UpdateTime  time.Time `xorm:"default CURRENT_TIMESTAMP comment('更新时间') DATETIME"`
-}
+
 type OrderLogistics struct {
 	Id            int64     `xorm:"pk autoincr comment('自增ID') BIGINT"`
 	LogisticsCode string    `xorm:"not null comment('运单号') unique(logistics_code_order_code) CHAR(40)"`

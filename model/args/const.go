@@ -14,7 +14,11 @@ func init() {
 }
 
 const (
-	LogisticsNotice = "尊敬的【%v】你好，你的订单号【%v】包含商品【%v】由【%v】处理完成。已经发货啦，欢迎你随时关注【%v】物流状态，祝你购物愉快"
+	RpcServiceMicroMallUsers = "micro-mall-users"
+)
+
+const (
+	LogisticsNotice = "尊敬的用户【%v】你好，你的订单号【%v】包含商品【%v】由【%v】处理完成。已经发货啦，欢迎你随时关注【%v】物流状态，祝你购物愉快"
 )
 
 type LogisticsState struct {

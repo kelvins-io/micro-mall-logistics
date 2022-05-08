@@ -178,6 +178,10 @@
         "send_time": {
           "type": "string"
         },
+        "send_user_id": {
+          "type": "string",
+          "format": "int64"
+        },
         "receive_user": {
           "type": "string"
         },
@@ -186,6 +190,10 @@
         },
         "receive_phone": {
           "type": "string"
+        },
+        "receive_user_id": {
+          "type": "string",
+          "format": "int64"
         }
       }
     },

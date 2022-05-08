@@ -3,17 +3,18 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"gitee.com/cristiane/micro-mall-logistics/model/args"
 	"gitee.com/cristiane/micro-mall-logistics/model/mysql"
 	"gitee.com/cristiane/micro-mall-logistics/pkg/code"
 	"gitee.com/cristiane/micro-mall-logistics/pkg/util"
 	"gitee.com/cristiane/micro-mall-logistics/pkg/util/email"
 	"gitee.com/cristiane/micro-mall-logistics/proto/micro_mall_logistics_proto/logistics_business"
+	"gitee.com/cristiane/micro-mall-logistics/proto/micro_mall_users_proto/users"
 	"gitee.com/cristiane/micro-mall-logistics/repository"
-	"gitee.com/cristiane/micro-mall-logistics/vars"
 	"gitee.com/kelvins-io/common/json"
 	"gitee.com/kelvins-io/kelvins"
-	"time"
 )
 
 func CreateRecord(ctx context.Context, req *logistics_business.ApplyLogisticsRequest) (result string, retCode int) {
@@ -31,7 +32,7 @@ func CreateRecord(ctx context.Context, req *logistics_business.ApplyLogisticsReq
 	}
 
 	// 物流通知
-	go createLogisticsRecordNotice(ctx, req, goods)
+	go createLogisticsRecordNotice(req, goods)
 
 	result = logisticsCode
 	return result, retCode
@@ -107,18 +108,32 @@ func createLogisticsRecord(ctx context.Context, req *logistics_business.ApplyLog
 	return logisticsCode, goods, retCode
 }
 
-func createLogisticsRecordNotice(ctx context.Context, req *logistics_business.ApplyLogisticsRequest, goods string) {
+func createLogisticsRecordNotice(req *logistics_business.ApplyLogisticsRequest, goods string) {
+	var ctx = context.TODO()
 	// 触发消息通知
-	emailNotice := fmt.Sprintf(args.LogisticsNotice, req.Customer.ReceiveUser, req.OutTradeNo, goods, req.Customer.SendUser, req.Courier)
-	if vars.EmailNoticeSetting != nil && vars.EmailNoticeSetting.Receivers != nil {
-		for _, receiver := range vars.EmailNoticeSetting.Receivers {
-			err := email.SendEmailNotice(ctx, receiver, kelvins.AppName, emailNotice)
-			if err != nil {
-				kelvins.ErrLogger.Info(ctx, "createLogisticsRecordNotice SendEmailNotice err, emailNotice: %v", emailNotice)
-			}
+	serverName := args.RpcServiceMicroMallUsers
+	conn, err := util.GetGrpcClient(ctx, serverName)
+	if err != nil {
+		kelvins.ErrLogger.Errorf(ctx, "GetGrpcClient %v,err: %v", serverName, err)
+		return
+	}
+	client := users.NewUsersServiceClient(conn)
+	userInfo, err := client.GetUserInfo(ctx, &users.GetUserInfoRequest{Uid: req.Customer.ReceiveUserId})
+	if err != nil {
+		kelvins.ErrLogger.Errorf(ctx, "GetUserInfo %v,err: %v, r: %v", serverName, err, json.MarshalToStringNoError(req.Customer.ReceiveUserId))
+		return
+	}
+	if userInfo.GetCommon().GetCode() != users.RetCode_SUCCESS {
+		kelvins.ErrLogger.Errorf(ctx, "GetUserInfo req %v, rsp: %v", json.MarshalToStringNoError(req.Customer.ReceiveUserId), json.MarshalToStringNoError(userInfo))
+		return
+	}
+	if userInfo.GetInfo().Email != "" {
+		emailNotice := fmt.Sprintf(args.LogisticsNotice, userInfo.GetInfo().UserName, req.OutTradeNo, goods, req.Customer.SendUser, req.Courier)
+		err = email.SendEmailNotice(ctx, userInfo.GetInfo().Email, kelvins.AppName, emailNotice)
+		if err != nil {
+			kelvins.ErrLogger.Info(ctx, "createLogisticsRecordNotice SendEmailNotice err, emailNotice: %v", emailNotice)
 		}
 	}
-
 }
 
 func checkLogisticsRecord(ctx context.Context, req *logistics_business.ApplyLogisticsRequest) int {
